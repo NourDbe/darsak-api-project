@@ -10,6 +10,7 @@ use App\Traits\Commentable;
 
 class Assignment extends Model
 {
+    use Commentable;
     protected $fillable = [
         'course_id',
         'title',

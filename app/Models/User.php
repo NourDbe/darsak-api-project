@@ -32,8 +32,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function courses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function courses()
 {
     return $this->hasMany(Course::class, 'teacher_id');
+}
+public function isTeacher(): bool
+{
+    return $this->role === 'teacher';
 }
 }

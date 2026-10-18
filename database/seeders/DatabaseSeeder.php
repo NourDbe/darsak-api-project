@@ -15,11 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+         // إنشاء المدرسين والطلاب أولاً.
+        $this->call(UserSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // إنشاء الكورسات بعد وجود المدرسين.
+        $this->call(CourseSeeder::class);
+
+        // إنشاء الدروس بعد وجود الكورسات.
+        $this->call(LessonSeeder::class);
+
+        // إنشاء الواجبات بعد إنشاء الكورسات.
+        $this->call(AssignmentSeeder::class);
+
+        // إضافة التعليقات بعد إنشاء المحتوى الذي ستُربط به.
+        $this->call(CommentSeeder::class);
+        // إضافة التصنيفات وربطها بالكورسات والدروس والواجبات.
+        $this->call(CategorySeeder::class);
+
     }
 }

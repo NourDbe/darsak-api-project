@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -7,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\Commentable;
 
 class Course extends Model
@@ -38,4 +38,11 @@ public function categories(): MorphToMany
     {
     return $this->morphToMany(Category::class, 'categorizable');
     }
+    /**
+ * الكورس الواحد يمكن أن يحتوي على عدة واجبات.
+ */
+public function assignments(): HasMany
+   {
+    return $this->hasMany(Assignment::class);
+   }
 }
