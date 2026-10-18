@@ -3,8 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Category extends Model
 {
-    //
+    protected $fillable = [
+        'name',
+        'slug',
+    ];
+    public function categories(): MorphToMany
+{
+    return $this->morphToMany(Category::class, 'categorizable');
+}
 }
