@@ -88,4 +88,59 @@ class CourseApiTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['title']);
     }
+    /**
+ * التأكد من أن المدرّس لا يستطيع تعديل دورة لا يملكها.
+ */
+public function test_teacher_cannot_update_another_teachers_course(): void
+{
+    $owner = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $otherTeacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $owner->id,
+    ]);
+
+    $response = $this->actingAs($otherTeacher, 'sanctum')
+        ->patchJson("/api/courses/{$course->id}", [
+            'title' => 'عنوان غير مسموح',
+        ]);
+
+    $response->assertForbidden();
+
+    $this->assertDatabaseHas('courses', [
+        'id' => $course->id,
+        'title' => $course->title,
+    ]);
+}
+/**
+ * التأكد من أن المدرّس لا يستطيع حذف دورة لا يملكها.
+ */
+public function test_teacher_cannot_delete_another_teachers_course(): void
+{
+    $owner = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $otherTeacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $owner->id,
+    ]);
+
+    $response = $this->actingAs($otherTeacher, 'sanctum')
+        ->deleteJson("/api/courses/{$course->id}");
+
+    $response->assertForbidden();
+
+    $this->assertDatabaseHas('courses', [
+        'id' => $course->id,
+    ]);
+}
 }
