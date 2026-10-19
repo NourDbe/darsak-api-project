@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Commentable;
 
 class Lesson extends Model
 {
     use Commentable;
+    use HasFactory;
     protected $fillable = [
         'course_id',
         'title',
