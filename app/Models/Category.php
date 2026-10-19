@@ -11,8 +11,19 @@ class Category extends Model
         'name',
         'slug',
     ];
-    public function categories(): MorphToMany
-{
-    return $this->morphToMany(Category::class, 'categorizable');
-}
+
+    public function courses(): MorphToMany
+    {
+        return $this->morphedByMany(Course::class, 'categorizable');
+    }
+
+    public function lessons(): MorphToMany
+    {
+        return $this->morphedByMany(Lesson::class, 'categorizable');
+    }
+
+    public function assignments(): MorphToMany
+    {
+        return $this->morphedByMany(Assignment::class, 'categorizable');
+    }
 }

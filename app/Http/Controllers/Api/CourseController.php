@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
+use App\Http\Requests\DestroyCourseRequest;
 use App\Models\Course;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
@@ -49,21 +49,28 @@ class CourseController extends Controller
      * عرض دورة محددة.
      */
     public function show(Course $course): JsonResponse
-    {
-        $course->load([
-            'categories',
-            'image',
-            'teacher:id,name',
-            'lessons',
-            'assignments',
-        ]);
+{
+    $course->load([
+        'categories',
+        'image',
+        'teacher:id,name',
+        'lessons' => function ($query) {
+            $query->with(['categories', 'image'])
+                ->orderBy('sort_order')
+                ->orderBy('id');
+        },
+        'assignments' => function ($query) {
+            $query->with(['categories', 'image'])
+                ->latest();
+        },
+    ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم جلب الدورة بنجاح.',
-            'data' => $course,
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'تم جلب الدورة بنجاح.',
+        'data' => $course,
+    ]);
+}
 
     /**
      * تعديل دورة يملكها المدرّس المسجّل دخوله.
@@ -89,15 +96,15 @@ class CourseController extends Controller
      * حذف دورة يملكها المدرّس المسجّل دخوله.
      */
     public function destroy(
-        UpdateCourseRequest $request,
-        Course $course
-    ): JsonResponse {
-        $course->delete();
+    DestroyCourseRequest $request,
+    Course $course
+): JsonResponse {
+    $course->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم حذف الدورة بنجاح.',
-            'data' => null,
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'تم حذف الدورة بنجاح.',
+        'data' => null,
+    ]);
+}
 }

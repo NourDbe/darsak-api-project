@@ -20,7 +20,7 @@ class CourseFactory extends Factory
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),
             'level' => 'beginner',
-            'status' => 'draft',
+            'status' => 'published',
             'is_free' => true,
             'price' => null,
         ];

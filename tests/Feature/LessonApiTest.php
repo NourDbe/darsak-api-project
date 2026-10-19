@@ -214,4 +214,59 @@ public function test_partial_update_keeps_other_lesson_fields_unchanged(): void
         'sort_order' => 3,
     ]);
 }
+public function test_lesson_rejects_fake_youtube_domain(): void
+{
+    $teacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'درس تجريبي',
+            'video_url' => 'https://youtube.com.example.com/video',
+        ]
+    );
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['video_url']);
+
+    $this->assertDatabaseMissing('lessons', [
+        'course_id' => $course->id,
+        'title' => 'درس تجريبي',
+    ]);
+}
+public function test_lesson_accepts_a_valid_youtube_url(): void
+{
+    $teacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $videoUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'درس فيديو صالح',
+            'video_url' => $videoUrl,
+        ]
+    );
+
+    $response->assertCreated()
+        ->assertJsonPath('data.video_url', $videoUrl);
+
+    $this->assertDatabaseHas('lessons', [
+        'course_id' => $course->id,
+        'title' => 'درس فيديو صالح',
+        'video_url' => $videoUrl,
+    ]);
+}
 }

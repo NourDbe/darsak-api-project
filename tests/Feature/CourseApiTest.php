@@ -143,4 +143,76 @@ public function test_teacher_cannot_delete_another_teachers_course(): void
         'id' => $course->id,
     ]);
 }
+/**
+ * التأكد من أن المدرّس يستطيع حذف دورته.
+ */
+public function test_teacher_can_delete_own_course(): void
+{
+    $teacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($teacher, 'sanctum')
+        ->deleteJson("/api/courses/{$course->id}");
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data', null);
+
+    $this->assertDatabaseMissing('courses', [
+        'id' => $course->id,
+    ]);
+}
+/**
+ * التأكد من أن الطالب لا يستطيع حذف دورة.
+ */
+public function test_student_cannot_delete_course(): void
+{
+    $teacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $student = User::factory()->create([
+        'role' => 'student',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($student, 'sanctum')
+        ->deleteJson("/api/courses/{$course->id}");
+
+    $response->assertForbidden();
+
+    $this->assertDatabaseHas('courses', [
+        'id' => $course->id,
+    ]);
+}
+/**
+ * التأكد من أن الزائر لا يستطيع حذف دورة.
+ */
+public function test_guest_cannot_delete_course(): void
+{
+    $teacher = User::factory()->create([
+        'role' => 'teacher',
+    ]);
+
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->deleteJson("/api/courses/{$course->id}");
+
+    $response->assertUnauthorized();
+
+    $this->assertDatabaseHas('courses', [
+        'id' => $course->id,
+    ]);
+}
 }
