@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use App\Models\Scopes\PublishedCourseScope;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Course extends Model
 {
     use Commentable;
     use HasFactory;
 
-    protected static function booted(): void
+   protected static function booted(): void
 {
     static::addGlobalScope(new PublishedCourseScope());
 }
@@ -39,6 +40,14 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'teacher_id');
     }
+    /**
+ * الطلاب المسجلون في الكورس.
+ */
+public function students(): BelongsToMany
+{
+    return $this->belongsToMany(User::class, 'course_student', 'course_id', 'student_id')
+        ->withTimestamps();
+}
 
     /**
      * الكورس يحتوي على عدة دروس.

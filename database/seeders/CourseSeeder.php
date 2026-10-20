@@ -60,9 +60,9 @@ class CourseSeeder extends Seeder
             // استخدام باقي القسمة يسمح بتكرار المدرسين عند الحاجة.
             $teacher = $teachers[$index % $teachers->count()];
 
-            // إنشاء الكورس إذا لم يكن موجوداً مسبقاً للمدرس نفسه.
-            // إذا كان موجوداً، فلن ننشئ نسخة مكررة منه.
-            Course::firstOrCreate(
+                        // البحث عن الكورس مع تجاهل النطاق العام الذي يخفي الكورسات غير المنشورة.
+            // هذا يمنع إنشاء نسخة جديدة من الكورس الذي حالته draft.
+            Course::withoutGlobalScopes()->firstOrCreate(
                 [
                     'title' => $courseData['title'],
                     'teacher_id' => $teacher->id,

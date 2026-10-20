@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\DestroyLessonRequest;
+use App\Http\Requests\StoreLessonRequest;
+use App\Http\Requests\UpdateLessonRequest;
 
 class LessonController extends Controller
 {
@@ -44,9 +47,9 @@ class LessonController extends Controller
  * إنشاء درس جديد ضمن دورة يملكها المدرّس.
  */
 public function store(
-    \App\Http\Requests\StoreLessonRequest $request,
-    \App\Models\Course $course
-): \Illuminate\Http\JsonResponse {
+    StoreLessonRequest $request,
+    Course $course
+):  JsonResponse {
     $lesson = $course->lessons()->create($request->validated());
 
     $lesson->load(['course', 'categories', 'image']);
@@ -61,9 +64,9 @@ public function store(
  * تعديل درس موجود، مع دعم التعديل الجزئي.
  */
 public function update(
-    \App\Http\Requests\UpdateLessonRequest $request,
-    \App\Models\Lesson $lesson
-): \Illuminate\Http\JsonResponse {
+    UpdateLessonRequest $request,
+    Lesson $lesson
+):  JsonResponse {
     $lesson->update($request->validated());
 
     $lesson->load(['course', 'categories', 'image']);
@@ -78,9 +81,9 @@ public function update(
  * حذف درس يملكه المدرّس الحالي.
  */
 public function destroy(
-    \App\Http\Requests\DestroyLessonRequest $request,
-    \App\Models\Lesson $lesson
-): \Illuminate\Http\JsonResponse {
+    DestroyLessonRequest $request,
+    Lesson $lesson
+):  JsonResponse {
     $lesson->delete();
 
     return response()->json([

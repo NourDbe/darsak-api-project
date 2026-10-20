@@ -13,8 +13,9 @@ class AssignmentSeeder extends Seeder
      */
     public function run(): void
     {
-        // جلب الكورسات الموجودة في قاعدة البيانات.
-        $courses = Course::all();
+
+        // تضمين الكورسات المنشورة والمسودات أثناء تعبئة بيانات الاختبار.
+        $courses = Course::withoutGlobalScopes()->get();
 
         // التوقف إذا لم توجد كورسات لإنشاء واجبات مرتبطة بها.
         if ($courses->isEmpty()) {

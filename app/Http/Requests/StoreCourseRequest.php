@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Enums\CourseLevel;
 
 class StoreCourseRequest extends FormRequest
 {
@@ -25,9 +26,9 @@ class StoreCourseRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'level' => [
-                'required',
-                Rule::in(['beginner', 'intermediate', 'advanced']),
-            ],
+            'required',
+                Rule::enum(CourseLevel::class),
+],
             'status' => [
                 'sometimes',
                 Rule::in(['draft', 'published']),

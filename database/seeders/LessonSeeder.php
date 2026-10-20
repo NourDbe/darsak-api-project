@@ -13,8 +13,8 @@ class LessonSeeder extends Seeder
      */
     public function run(): void
     {
-        // جلب الكورسات الموجودة في قاعدة البيانات.
-        $courses = Course::all();
+        // تضمين الكورسات المنشورة والمسودات أثناء تعبئة بيانات الاختبار.
+         $courses = Course::withoutGlobalScopes()->get();
 
         // إذا ما في كورسات، ما فينا نضيف دروس مرتبطة فيها.
         if ($courses->isEmpty()) {

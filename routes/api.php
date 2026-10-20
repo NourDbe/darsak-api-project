@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\CommentController;
 
 // عرض الدورات متاح بدون تسجيل دخول.
 Route::get('/courses', [CourseController::class, 'index']);
@@ -30,6 +31,12 @@ Route::get('/categories/{category}', [
     CategoryController::class,
     'show',
 ])->whereNumber('category');
+
+// عرض آخر 30 تعليقاً مع بيانات الطالب والمحتوى المرتبط.
+Route::get('/comments/latest', [
+    CommentController::class,
+    'latest',
+]);
 
 // العمليات التي تتطلب تسجيل الدخول.
 Route::middleware('auth:sanctum')->group(function () {
@@ -70,4 +77,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy'])
         ->whereNumber('assignment');
+
+        // التعليقات: تتطلب تسجيل الدخول.
+    Route::post('/{type}/{id}/comments', [
+        CommentController::class,
+        'store',
+    ])
+        ->whereIn('type', ['courses', 'lessons', 'assignments'])
+        ->whereNumber('id');
+
 });

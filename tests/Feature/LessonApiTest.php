@@ -269,4 +269,83 @@ public function test_lesson_accepts_a_valid_youtube_url(): void
         'video_url' => $videoUrl,
     ]);
 }
+public function test_lesson_accepts_a_valid_vimeo_url(): void
+{
+    $teacher = User::factory()->create(['role' => 'teacher']);
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $videoUrl = 'https://vimeo.com/123456789';
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'درس Vimeo',
+            'video_url' => $videoUrl,
+        ]
+    );
+
+    $response->assertCreated()
+        ->assertJsonPath('data.video_url', $videoUrl);
+}
+
+public function test_lesson_accepts_a_short_youtube_url(): void
+{
+    $teacher = User::factory()->create(['role' => 'teacher']);
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $videoUrl = 'https://youtu.be/dQw4w9WgXcQ';
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'درس برابط مختصر',
+            'video_url' => $videoUrl,
+        ]
+    );
+
+    $response->assertCreated()
+        ->assertJsonPath('data.video_url', $videoUrl);
+}
+
+public function test_lesson_rejects_ftp_video_url(): void
+{
+    $teacher = User::factory()->create(['role' => 'teacher']);
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'رابط غير آمن',
+            'video_url' => 'ftp://youtube.com/video',
+        ]
+    );
+
+    $response->assertUnprocessable()
+        ->assertJsonValidationErrors(['video_url']);
+}
+
+public function test_lesson_accepts_null_video_url(): void
+{
+    $teacher = User::factory()->create(['role' => 'teacher']);
+    $course = Course::factory()->create([
+        'teacher_id' => $teacher->id,
+    ]);
+
+    $response = $this->actingAs($teacher)->postJson(
+        "/api/courses/{$course->id}/lessons",
+        [
+            'title' => 'درس بلا فيديو',
+            'video_url' => null,
+        ]
+    );
+
+    $response->assertCreated()
+        ->assertJsonPath('data.video_url', null);
+}
 }

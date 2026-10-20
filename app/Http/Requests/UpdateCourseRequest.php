@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Contracts\CourseOwnershipChecker;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Enums\CourseLevel;
 
 class UpdateCourseRequest extends FormRequest
 {
@@ -11,14 +13,19 @@ class UpdateCourseRequest extends FormRequest
      * التحقق من صلاحية المدرّس لتعديل دورته فقط.
      */
     public function authorize(): bool
-    {
-        $course = $this->route('course');
+{
+    $user = $this->user();
+    $course = $this->route('course');
 
-        return $this->user() !== null
-            && $this->user()->role === 'teacher'
-            && $course !== null
-            && (int) $course->teacher_id === (int) $this->user()->id;
+    if ($user === null || $course === null) {
+        return false;
     }
+
+    return app(CourseOwnershipChecker::class)->owns(
+        $user,
+        $course
+    );
+}
 
     /**
      * قواعد التحقق من البيانات المرسلة.
@@ -30,9 +37,9 @@ class UpdateCourseRequest extends FormRequest
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
             'level' => [
-                'sometimes',
-                'required',
-                Rule::in(['beginner', 'intermediate', 'advanced']),
+            'sometimes',
+            'required',
+                Rule::enum(CourseLevel::class),
             ],
             'status' => [
                 'sometimes',
